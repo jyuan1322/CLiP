@@ -174,15 +174,16 @@ def plot_info_final(file_path, xlabel="heritability"):
                                    vmax=max(zvals)), cmap='cool')
     colors.set_array(zvals)
 
-    weight_order = ['step', 'sigmoid', 'linear', 'log1', 'log1p5', 'log3', 'polynom2', 'polynom4', 'polynom6']
+    weight_order = ['step', 'sigmoid', 'linear', 'log1', 'polynom2', 'polynom4', 'polynom6']
 
-    ws_colors = {'step':'k', 'sigmoid':'orange', 'log1':'r', 'log1p5':'r',
-                 'log3':'r', 'linear':'g',
+    ws_colors = {'step':'k', 'sigmoid':'orange', 'log1':'r', 'linear':'g',
                  'polynom2':'cyan', 'polynom4':'deepskyblue', 'polynom6':'cornflowerblue'}
 
-    ws_styles = {'step':'-', 'sigmoid':'-', 'log1':'--', 'log1p5':'-.',
-                 'log3':':', 'linear':'-',
+    ws_styles = {'step':'-', 'sigmoid':'-', 'log1':'-', 'linear':'-',
                  'polynom2':'-', 'polynom4':'--', 'polynom6':'-.'}
+
+    ws_legend_lbl = {'step':'step', 'sigmoid':'sigmoid', 'log1':r'$-\log(1-x)$', 'linear':'linear',
+                     'polynom2':'deg-2 polyn', 'polynom4':'deg-4 polyn', 'polynom6':'deg-6 polyn'}
 
     fig,ax = plt.subplots(1,1,figsize=(1.6,7))
     plt.gca().set_visible(False)
@@ -203,7 +204,8 @@ def plot_info_final(file_path, xlabel="heritability"):
     ws_labels = sorted(ws_colors.keys())
     legend_lines = [Line2D([0],[0], color=ws_colors[ws],
                            linestyle=ws_styles[ws]) for ws in ws_labels]
-    fig_legend = figlegend.legend(legend_lines, ws_labels, frameon=False)
+    ws_leg_lbls = [ws_legend_lbl[ws] for ws in ws_labels]
+    fig_legend = figlegend.legend(legend_lines, ws_leg_lbls, frameon=False, fontsize=10)
     figlegend.savefig('legendtest.eps')
 
 
@@ -320,9 +322,8 @@ def plot_info_final(file_path, xlabel="heritability"):
             score_stds = []
             for num_inds in num_inds_vals:
                 score_means.append(np.mean(het_continuous_runs[ws][num_inds]) - \
-                                   np.mean(hom_continuous_runs[ws][num_inds]))
-                score_stds.append(np.sqrt(np.var(het_continuous_runs[ws][num_inds]) + \
-                                          np.var(hom_continuous_runs[ws][num_inds])))
+                                   np.mean(hom_contin_exp_runs[ws][num_inds]))
+                score_stds.append(np.sqrt(np.var(het_continuous_runs[ws][num_inds])))
             plt.errorbar(num_inds_vals, score_means, yerr=score_stds, c=ws_colors[ws], linestyle=ws_styles[ws], label=ws, capsize=5)
 
     ax.set_ylabel("CLiP-Y score")
@@ -364,9 +365,8 @@ def plot_info_final(file_path, xlabel="heritability"):
         wscol = ws_colors[ws]
         num_inds = np.max(list(het_thresh_runs[bz].keys()))
         score_mean = np.mean(het_continuous_runs[ws][num_inds]) - \
-                     np.mean(hom_continuous_runs[ws][num_inds])
-        score_stds = np.sqrt(np.var(het_continuous_runs[ws][num_inds] + \
-                             np.var(hom_continuous_runs[ws][num_inds])))
+                     np.mean(hom_contin_exp_runs[ws][num_inds])
+        score_stds = np.sqrt(np.var(het_continuous_runs[ws][num_inds]))
 
         ax2.errorbar(idx, score_mean, yerr=score_stds, label=ws, color=wscol, marker='o')
         idx += 1
@@ -413,9 +413,8 @@ def plot_info_final(file_path, xlabel="heritability"):
             score_stds = []
             for num_inds in num_inds_vals:
                 score_means.append(np.mean(het_continuous_runs[ws][num_inds]) - \
-                                   np.mean(hom_continuous_runs[ws][num_inds]))
-                score_stds.append(np.sqrt(np.var(het_continuous_runs[ws][num_inds]) + \
-                                          np.var(hom_continuous_runs[ws][num_inds])))
+                                   np.mean(hom_contin_exp_runs[ws][num_inds]))
+                score_stds.append(np.sqrt(np.var(het_continuous_runs[ws][num_inds])))
             ax1.errorbar(num_inds_vals, score_means, yerr=score_stds, c=ws_colors[ws], linestyle=ws_styles[ws], label=ws, capsize=5)
 
     ax1.set_ylabel("CLiP-Y score")
@@ -456,11 +455,11 @@ FILE_PATH_N = "data_num_inds.pickle"
 
 if __name__=="__main__":
     if not os.path.exists(FILE_PATH_H):
-        simulate_mult_h(FILE_PATH_H, runs=20, num_snps=10, h_vals=(0.01,0.05,0.1,0.15,0.2,0.25,0.3), num_inds=100000, bzs=[-1.6,-1.4,-1.2,-1.0,-0.6, -0.3, 0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.0, 2.2])
+        simulate_mult_h(FILE_PATH_H, runs=20, num_snps=100, h_vals=(0.01,0.05,0.1,0.15,0.2,0.25,0.3), num_inds=100000, bzs=[-1.6,-1.4,-1.2,-1.0,-0.6, -0.3, 0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.0, 2.2])
 
 
     if not os.path.exists(FILE_PATH_N):
-        simulate_mult_n(FILE_PATH_N, runs=20, num_snps=10, h=0.1, num_inds_vals=(5000, 10000, 20000, 50000, 100000), bzs=[-1.6,-1.4,-1.2,-1.0,-0.6, -0.3, 0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.0, 2.2])
+        simulate_mult_n(FILE_PATH_N, runs=20, num_snps=100, h=0.1, num_inds_vals=(5000, 10000, 20000, 50000, 100000), bzs=[-1.6,-1.4,-1.2,-1.0,-0.6, -0.3, 0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.0, 2.2])
 
     plot_info_final(FILE_PATH_H, xlabel="SNP Variance Explained")
     plot_info_final(FILE_PATH_N, xlabel="number of individuals")
