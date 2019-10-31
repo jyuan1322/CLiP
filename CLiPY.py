@@ -70,21 +70,21 @@ def step(phenos, mean, std):
     return (percentiles > 0.5)
 
 def polynom2(phenos, mean, std):
-    coefs = [-409.52448861055984,431.6513313140901,38.00764396532995]
+    coefs = [-391.31065702248884,321.73537044851355,75.77307898929996]
 
     percentiles = norm.cdf(phenos, loc=mean, scale=std)
     polynom = np.poly1d(coefs)
     return np.maximum(0, polynom(percentiles))
 
 def polynom4(phenos, mean, std):
-    coefs = [-540.0797504985338,-360.26557093065634,-44.21132533248787,732.5017720012906,234.54891527783096]
+    coefs = [-223.92972608943492,-481.0127584074366,-485.02707252322165,884.206607293954,347.13589272897286]
 
     percentiles = norm.cdf(phenos, loc=mean, scale=std)
     polynom = np.poly1d(coefs)
     return np.maximum(0, polynom(percentiles))
 
 def polynom6(phenos, mean, std):
-    coefs = [-272.72479315758346,484.8418136747146,-270.8586221944605,-185.17269248431845,-426.3074761490136,582.3584611990045,88.95092357490671]
+    coefs = [709.9802994997349,-122.38243480614074,-1037.6487525641326,-836.6217751283207,181.65062178074518,829.0039446975911,276.4022598776502]
 
     percentiles = norm.cdf(phenos, loc=mean, scale=std)
     polynom = np.poly1d(coefs)

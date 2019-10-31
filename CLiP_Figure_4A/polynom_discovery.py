@@ -231,6 +231,7 @@ def test_funcs(filename, numtrain=20, num_snps=10, h=0.1, num_inds=100000, symme
             coef_wts = [float(x) for x in line.split(",")]
 
             scr_diffs = []
+            scr_homs = []
             for i in range(numtrain):
                 independent_pop = training_data[i]["independent_pop"]
                 independent_snps = training_data[i]["independent_snps"]
@@ -248,9 +249,10 @@ def test_funcs(filename, numtrain=20, num_snps=10, h=0.1, num_inds=100000, symme
                                                   symmetric=symmetric)
                 HetScorediff = HetScorehet - HetScorehom
                 scr_diffs.append(HetScorediff)
+                scr_homs.append(HetScorehom)
             coef_cands.append(coef_wts)
             HetScorecands.append(np.mean(scr_diffs))
-            HetScorecand_stds.append(np.std(scr_diffs))
+            HetScorecand_stds.append(np.std(scr_homs))
             print(count, HetScorecands[-1], HetScorecand_stds[-1])
             with open("evaluated_candidates.txt", "a") as f:
                 f.write("%s|%s|%s|%s\n" % (count, HetScorecands[-1], HetScorecand_stds[-1], filename))
@@ -268,11 +270,11 @@ if __name__=="__main__":
     args = parser.parse_args()
     
     if args.test:
-         test_funcs("discovered_polynomials.txt", numtrain=20, verbose=False)
+         test_funcs("discovered_polynomials.txt", numtrain=20, num_snps=100, verbose=False)
     else:
         count = 0
         while count < 50:
-            HetScorediff, coef_wts = run(num_inds=5000, num_snps=10, h=0.1, deg=2, numtrain=5, symmetric=False, verbose=False)
+            HetScorediff, coef_wts = run(num_inds=5000, num_snps=100, h=0.1, deg=6, numtrain=5, symmetric=False, verbose=False)
             print(HetScorediff, coef_wts)
             if HetScorediff > 4:
                 count += 1
