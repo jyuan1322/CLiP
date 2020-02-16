@@ -22,12 +22,18 @@ def run_heritability():
 
     if os.path.exists(FILE_PATH):
         pckl = pickle.load(open(FILE_PATH, "rb"))
-        hetsc_means_hom = pckl["hetsc_means_hom"]
-        hetsc_stds_hom = pckl["hetsc_stds_hom"]
-        hetsc_means_het = pckl["hetsc_means_het"]
-        hetsc_stds_het = pckl["hetsc_stds_het"]
-        hetsc_means_cont = pckl["hetsc_means_cont"]
-        hetsc_stds_cont = pckl["hetsc_stds_cont"]
+        # hetsc_means_hom = pckl["hetsc_means_hom"]
+        # hetsc_stds_hom = pckl["hetsc_stds_hom"]
+        # hetsc_means_het = pckl["hetsc_means_het"]
+        # hetsc_stds_het = pckl["hetsc_stds_het"]
+        # hetsc_means_cont = pckl["hetsc_means_cont"]
+        # hetsc_stds_cont = pckl["hetsc_stds_cont"]
+        hetsc_means_hom = np.mean(pckl["hetscs_hom"])
+        hetsc_stds_hom = np.std(pckl["hetscs_hom"])
+        hetsc_means_het = np.mean(pckl["hetscs_het"])
+        hetsc_stds_het = np.std(pckl["hetscs_het"])
+        hetsc_means_cont = np.mean(pckl["hetscs_cont"])
+        hetsc_stds_cont = np.std(pckl["hetscs_cont"])
         hetsc_exps = pckl["hetsc_exps"]
         h_sqs = pckl["h_sqs"]
         plt.errorbar(h_sqs, hetsc_means_hom, yerr=hetsc_stds_hom, color='red', capsize=5)
@@ -52,12 +58,15 @@ def run_heritability():
         plt.show()
 
     else:
-        hetsc_means_hom = []
-        hetsc_stds_hom = []
-        hetsc_means_het = []
-        hetsc_stds_het = []
-        hetsc_means_cont = []
-        hetsc_stds_cont = []
+        # hetsc_means_hom = []
+        # hetsc_stds_hom = []
+        # hetsc_means_het = []
+        # hetsc_stds_het = []
+        # hetsc_means_cont = []
+        # hetsc_stds_cont = []
+        hetscs_homs = []
+        hetscs_hets = []
+        hetscs_conts = []
         hetsc_exps = []
         h_sqs = [0.001, 0.01, 0.02, 0.03, 0.05, 0.075, 0.1]
         num_trials = 20
@@ -102,21 +111,28 @@ def run_heritability():
                 hetscs_cont.append(score)
 
 
-            hetsc_means_hom.append(np.mean(hetscs_hom))
-            hetsc_stds_hom.append(np.std(hetscs_hom))
-            hetsc_means_het.append(np.mean(hetscs_het))
-            hetsc_stds_het.append(np.std(hetscs_het))
-            hetsc_means_cont.append(np.mean(hetscs_cont))
-            hetsc_stds_cont.append(np.std(hetscs_cont))
-        pickle.dump({"hetsc_means_hom":hetsc_means_hom,
-                     "hetsc_stds_hom":hetsc_stds_hom,
-                     "hetsc_means_het":hetsc_means_het,
-                     "hetsc_stds_het":hetsc_stds_het,
-                     "hetsc_means_cont":hetsc_means_cont,
-                     "hetsc_stds_cont":hetsc_stds_cont,
+            # hetsc_means_hom.append(np.mean(hetscs_hom))
+            # hetsc_stds_hom.append(np.std(hetscs_hom))
+            # hetsc_means_het.append(np.mean(hetscs_het))
+            # hetsc_stds_het.append(np.std(hetscs_het))
+            # hetsc_means_cont.append(np.mean(hetscs_cont))
+            # hetsc_stds_cont.append(np.std(hetscs_cont))
+            hetscs_homs.append(hetscs_hom)
+            hetscs_hets.append(hetscs_het)
+            hetscs_conts.append(hetscs_cont)
+        pickle.dump({"hetscs_homs":hetscs_homs,
+                     "hetscs_hets":hetscs_hets,
+                     "hetscs_conts":hetscs_conts,
                      "hetsc_exps":hetsc_exps,
                      "h_sqs":h_sqs}, open(FILE_PATH, "wb"))
-
+        """
+        "hetsc_means_hom":hetsc_means_hom,
+        "hetsc_stds_hom":hetsc_stds_hom,
+        "hetsc_means_het":hetsc_means_het,
+        "hetsc_stds_het":hetsc_stds_het,
+        "hetsc_means_cont":hetsc_means_cont,
+        "hetsc_stds_cont":hetsc_stds_cont,
+        """
 def run_sample_size():
     FILE_PATH = "simulate_results_samplesize.p"
     fig, ax = plt.subplots(1,1)
@@ -125,13 +141,19 @@ def run_sample_size():
 
     if os.path.exists(FILE_PATH):
         pckl = pickle.load(open(FILE_PATH, "rb"))
-        hetsc_means_hom = pckl["hetsc_means_hom"]
-        hetsc_stds_hom = pckl["hetsc_stds_hom"]
-        hetsc_means_het = pckl["hetsc_means_het"]
-        hetsc_stds_het = pckl["hetsc_stds_het"]
-        hetsc_means_cont = pckl["hetsc_means_cont"]
-        hetsc_stds_cont = pckl["hetsc_stds_cont"]
-        hetsc_exps = pckl["hetsc_exps"]
+        # hetsc_means_hom = pckl["hetsc_means_hom"]
+        # hetsc_stds_hom = pckl["hetsc_stds_hom"]
+        # hetsc_means_het = pckl["hetsc_means_het"]
+        # hetsc_stds_het = pckl["hetsc_stds_het"]
+        # hetsc_means_cont = pckl["hetsc_means_cont"]
+        # hetsc_stds_cont = pckl["hetsc_stds_cont"]
+        # hetsc_exps = pckl["hetsc_exps"]
+        hetsc_means_hom = np.mean(pckl["hetscs_hom"])
+        hetsc_stds_hom = np.std(pckl["hetscs_hom"])
+        hetsc_means_het = np.mean(pckl["hetscs_het"])
+        hetsc_stds_het = np.std(pckl["hetscs_het"])
+        hetsc_means_cont = np.mean(pckl["hetscs_cont"])
+        hetsc_stds_cont = np.std(pckl["hetscs_cont"])
         sample_size = pckl["sample_size"]
         plt.errorbar(sample_size, hetsc_means_hom, yerr=hetsc_stds_hom, color='red', capsize=5)
         plt.errorbar(sample_size, hetsc_means_het, yerr=hetsc_stds_het, color='green', capsize=5)
@@ -218,15 +240,19 @@ def run_sample_size():
             hetsc_stds_het.append(np.std(hetscs_het))
             hetsc_means_cont.append(np.mean(hetscs_cont))
             hetsc_stds_cont.append(np.std(hetscs_cont))
-        pickle.dump({"hetsc_means_hom":hetsc_means_hom,
-                     "hetsc_stds_hom":hetsc_stds_hom,
-                     "hetsc_means_het":hetsc_means_het,
-                     "hetsc_stds_het":hetsc_stds_het,
-                     "hetsc_means_cont":hetsc_means_cont,
-                     "hetsc_stds_cont":hetsc_stds_cont,
+        pickle.dump({"hetscs_homs":hetscs_homs,
+                     "hetscs_hets":hetscs_hets,
+                     "hetscs_conts":hetscs_conts,
                      "hetsc_exps":hetsc_exps,
                      "sample_size":sample_sizes}, open(FILE_PATH, "wb"))
-
+        """
+        "hetsc_means_hom":hetsc_means_hom,
+        "hetsc_stds_hom":hetsc_stds_hom,
+        "hetsc_means_het":hetsc_means_het,
+        "hetsc_stds_het":hetsc_stds_het,
+        "hetsc_means_cont":hetsc_means_cont,
+        "hetsc_stds_cont":hetsc_stds_cont,
+        """
 if __name__=="__main__":
     run_sample_size()
     run_heritability()
