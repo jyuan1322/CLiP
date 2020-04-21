@@ -5,7 +5,10 @@ import os.path
 import pickle, sys, argparse
 from scipy.stats import norm
 sys.path.append('../')
-from CLiP import generate_cohort, heterogeneity
+from CLiP import generate_cohort, \
+                 generate_cohort_splits, \
+                 generate_snps_splits, \
+                 heterogeneity
 
 def test_n_splits(num_sub_phenos, frac_shared_effects, num_snps=100, num_cases=5000, num_conts=5000):
     num_snps_shared = num_snps * frac_shared_effects
@@ -49,49 +52,6 @@ def test_n_splits(num_sub_phenos, frac_shared_effects, num_snps=100, num_cases=5
         conts = np.concatenate((conts, sub_conts), axis=0)
     score = heterogeneity(cases, conts)
     return score
-
-def generate_snps_splits(num_sub_phenos, frac_shared_effects, num_snps=100, h_sq=0.034, fixed_ps=0.2):
-    num_snps_shared = num_snps * frac_shared_effects / \
-                        (num_sub_phenos*(1- frac_shared_effects) + frac_shared_effects)
-    # ensure equal number of non-shared SNPs across sub-phenotypes
-    print(num_snps, num_snps_shared, num_sub_phenos)
-    # assert (num_snps - num_snps_shared) % num_sub_phenos == 0
-    num_snps_exclsv = (num_snps - num_snps_shared)/num_sub_phenos
-    ps = np.array([fixed_ps]*num_snps)
-
-    sub_betas_list = np.zeros((0,num_snps))
-    for i in range(num_sub_phenos):
-        sub_betas = np.array([ int(j < num_snps_shared or (
-                                   j>= num_snps_shared + i*(num_snps_exclsv) and \
-                                   j< num_snps_shared + (i+1)*(num_snps_exclsv))
-                               ) for j in range(num_snps)])
-
-        beta_val = np.sqrt(h_sq / np.sum(2 * np.multiply(ps,1-ps))) # fixed effect regardless of split
-        sub_betas = beta_val * sub_betas
-        sub_betas = sub_betas[np.newaxis,...]
-        sub_betas_list = np.concatenate((sub_betas_list, sub_betas), axis=0)
-    return sub_betas_list, ps
-
-def generate_cohort_splits(num_sub_phenos, sub_betas_list, ps, num_cases=5000, num_conts=5000, h_sq=0.034):
-    cases = np.zeros((0,num_snps))
-    conts = np.zeros((0,num_snps))
-    for i in range(num_sub_phenos):
-        num_sub_cases = int(num_cases / num_sub_phenos)
-        num_sub_conts = num_sub_cases
-        sub_betas = sub_betas_list[i]
-
-        # generate sub-cohort
-        prev = 0.01
-        thresh = norm.ppf(1-prev, loc=0, scale=1)
-        sub_cases, sub_conts = generate_cohort(num_cases=num_sub_cases,
-                                               num_conts=num_sub_conts,
-                                               freqs=ps,
-                                               betas=sub_betas,
-                                               h_sq=h_sq,
-                                               thresh=thresh)
-        cases = np.concatenate((cases, sub_cases), axis=0)
-        conts = np.concatenate((conts, sub_conts), axis=0)
-    return cases, conts
 
 def plot_grid(results):
     # num_subpheno_list = [1,2,3,4,5,6,7,8]
@@ -155,6 +115,7 @@ if __name__=="__main__":
     else:
         num_cases = 50000
         num_snps = 100
+        ps = np.array([0.2]*num_snps)
         num_trials = 20
         # num_subpheno_list = [1,2,3,4,5,6,7,8]
         num_subpheno_list = [2,3]
@@ -174,8 +135,8 @@ if __name__=="__main__":
                     sub_betas_list, ps = generate_snps_splits(num_sub_phenos=nsubph,
                                                               frac_shared_effects=fsheff,
                                                               num_snps=num_snps,
-                                                              h_sq=h_sq,
-                                                              fixed_ps=0.2)
+                                                              ps=ps,
+                                                              h_sq=h_sq)
 
                     cases, conts = generate_cohort_splits(num_sub_phenos=nsubph,
                                                           sub_betas_list=sub_betas_list,

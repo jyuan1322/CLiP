@@ -28,7 +28,7 @@ def generate_cohort(num_cases,num_conts,freqs,betas,h_sq,thresh):
             idxs = idxs[:(num_cases-cur_cases)]
         cases[cur_cases:cur_cases + len(idxs),:] = case_samples[idxs,:]
         cur_cases += len(idxs)
-        print(cur_cases)
+        # print(cur_cases)
     if cases.shape[0] > num_cases:
         cases = cases[:num_cases, :]
     return cases,conts
@@ -168,6 +168,27 @@ def generate_snp_props(num_snps, ps, h_sq):
     betas = np.array([beta_val]*num_snps)
     return ps, betas
 
+def generate_snps_splits(num_sub_phenos, frac_shared_effects, num_snps, ps, h_sq):
+    num_snps_shared = num_snps * frac_shared_effects / \
+                        (num_sub_phenos*(1- frac_shared_effects) + frac_shared_effects)
+    # ensure equal number of non-shared SNPs across sub-phenotypes
+    print(num_snps, num_snps_shared, num_sub_phenos)
+    # assert (num_snps - num_snps_shared) % num_sub_phenos == 0
+    num_snps_exclsv = (num_snps - num_snps_shared)/num_sub_phenos
+
+    sub_betas_list = np.zeros((0,num_snps))
+    for i in range(num_sub_phenos):
+        sub_betas = np.array([ int(j < num_snps_shared or (
+                                   j>= num_snps_shared + i*(num_snps_exclsv) and \
+                                   j< num_snps_shared + (i+1)*(num_snps_exclsv))
+                               ) for j in range(num_snps)])
+
+        beta_val = np.sqrt(h_sq / np.sum(2 * np.multiply(ps,1-ps))) # fixed effect regardless of split
+        sub_betas = beta_val * sub_betas
+        sub_betas = sub_betas[np.newaxis,...]
+        sub_betas_list = np.concatenate((sub_betas_list, sub_betas), axis=0)
+    return sub_betas_list, ps
+
 def generate_homhet_cohort(num_cases, num_conts, num_snps, ps, h_sq, het=False):
     #num_cases = 5000
     #num_conts = 5000
@@ -193,4 +214,25 @@ def generate_controls(num_cases, num_conts, num_snps, ps, h_sq):
     cases = np.random.binomial(n=2, p=ps, size=(num_cases,num_snps))
     conts = np.random.binomial(n=2, p=ps, size=(num_conts,num_snps))
     return cases,conts
+
+def generate_cohort_splits(num_sub_phenos, sub_betas_list, ps, num_cases=5000, num_conts=5000, prev = 0.01, h_sq=0.034):
+    num_snps = sub_betas_list.shape[1]
+    cases = np.zeros((0,num_snps))
+    conts = np.zeros((0,num_snps))
+    for i in range(num_sub_phenos):
+        num_sub_cases = int(num_cases / num_sub_phenos)
+        num_sub_conts = num_sub_cases
+        sub_betas = sub_betas_list[i]
+
+        # generate sub-cohort
+        thresh = norm.ppf(1-prev, loc=0, scale=1)
+        sub_cases, sub_conts = generate_cohort(num_cases=num_sub_cases,
+                                               num_conts=num_sub_conts,
+                                               freqs=ps,
+                                               betas=sub_betas,
+                                               h_sq=h_sq,
+                                               thresh=thresh)
+        cases = np.concatenate((cases, sub_cases), axis=0)
+        conts = np.concatenate((conts, sub_conts), axis=0)
+    return cases, conts
 
