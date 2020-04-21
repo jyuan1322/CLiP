@@ -54,7 +54,7 @@ def plot_heterogeneity(herit, g2wherit=None, log_scale=False):
         plt.title(r"$h_E^2$ = {:0.3f}".format(herit))
     else:
         plt.title(r"$V_G^2$ = {:0.3f}, $V_E^2$ = {:0.3f}".format(g2wherit, herit))
-    plt.savefig("score_continuous_hetero_%s.eps" % (herit), format="eps", dpi=1000)
+    plt.savefig("score_continuous_hetero_%s.eps" % (herit), format="eps", dpi=600)
     plt.show()
 
 if __name__=="__main__":
