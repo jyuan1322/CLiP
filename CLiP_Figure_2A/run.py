@@ -1,22 +1,24 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pickle, sys, os
+import pickle, sys, os, argparse
 from scipy import integrate
 from scipy.stats import norm
 from scipy.special import gamma
 from scipy.special import hyp2f1
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import r2_score
+from pprint import pprint
 sys.path.append('../')
 from CLiPX import Heterogeneity_GWAS
+from CLiP_input import getSNPs
 
 def simulate_individual(num, freqs):
-	num = int(num)
-	inds = np.empty([num, len(freqs)])
-	for i, p in enumerate(freqs):
-		sprobs = [(1-p)*(1-p), 2*p*(1-p), p*p]
-		inds[:, i] = np.random.choice(3,size=num,p=sprobs)
-	return inds
+    num = int(num)
+    inds = np.empty([num, len(freqs)])
+    for i, p in enumerate(freqs):
+        sprobs = [(1-p)*(1-p), 2*p*(1-p), p*p]
+        inds[:, i] = np.random.choice(3,size=num,p=sprobs)
+    return inds
 
 def generate_cohort_logit(ORs, freqs, thresh, case_sizes, control_size):
     """
@@ -35,9 +37,11 @@ def generate_cohort_logit(ORs, freqs, thresh, case_sizes, control_size):
         all_count += case_size
 
     batch = 3000
+    beta_logits = np.log(ORs)
+    exp_score = 2*np.dot(beta_logits.flatten(), freqs)
     while cur_count < all_count:
         indivs = simulate_individual(batch, freqs)
-        scores = 1/(1 + np.exp(-(np.dot(indivs, np.log(ORs)) + thresh)))
+        scores = 1/(1 + np.exp(-(np.dot(indivs, beta_logits) - exp_score + thresh)))
         for i in range(scores.shape[0]):
             for j in range(scores.shape[1]):
                 if np.random.rand() < scores[i,j] and cur_case_size[j] < case_sizes[j]:
@@ -70,7 +74,8 @@ def generate_cohort_risch(ORs, freqs, prev, case_sizes, control_size):
             for j in range(len(case_sizes)):
                 prob = prev * np.product(np.power(ORs[:,j], indivs[i,:]))
 
-                if np.random.binomial(n=1,p=prob) == 1 and cur_case_size[j] < case_sizes[j]:
+                # automatically make a case if prob > 1
+                if (prob > 1 or np.random.binomial(n=1,p=prob) == 1) and cur_case_size[j] < case_sizes[j]:
                     cases[j][cur_case_size[j], :] = indivs[i,:]
                     cur_count += 1
                     cur_case_size[j] += 1
@@ -81,6 +86,7 @@ def hetscore_numinds(ORs, freqs, prev, case_sizes, control_size, snp_idxs, heter
 
     hetscores=[]
     for nt in range(num_trials):
+        print("hetero: %s, use_logistic: %s, trial: %s" % (hetero, use_logistic, nt))
         if use_logistic:
             thresh = -np.log(1/prev - 1)
             cases, controls = generate_cohort_logit(ORs, freqs, thresh,
@@ -163,20 +169,45 @@ if __name__=="__main__":
     if os.path.exists(FILE_PATH):
         load_results()
     else:
-        num_trials = 20
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--snp-path", dest="snp_path", required=False, default=None, help="Summary statistic file")
+        args = parser.parse_args()
+
+        # num_trials = 20
+        num_trials = 10
         cohort_sizes = [1000, 5000, 10000, 20000, 30000, 50000, 75000, 100000]
         pickle.dump(cohort_sizes, open("cohort_sizes.p", "wb"))
-        num_snps = 10
-        freqs = [0.50] * num_snps
 
-        # ORs = [1.2] * num_snps
-        prev = 0.05
-        
+
+        if args.snp_path is None:
+            """
+            num_snps = 10
+            freqs = [0.50] * num_snps
+            ORs = np.array([[1.16] * 10]).T
+            prev = 0.05
+            """
+            num_snps = 100
+            freqs = [0.2] * num_snps
+            ORs = np.array([[1.06] * num_snps]).T
+            prev = 0.01
+        else:
+            # run on input SNP list
+            snps = getSNPs(args.snp_path)
+            prev = 0.01
+            num_snps = len(snps)
+            snp_list = [(snps[s]["odds_ratio"],
+                         snps[s]["eff_freq"]) for s in snps]
+            snp_sel = sorted(snp_list, key=lambda x:x[0], reverse=True)
+
+            freqs = [x[1] for x in snp_sel]
+            ORs = np.array([[x[0] for x in snp_sel]]).T
 
         # control
         mean_res_conts = []
         std_res_conts = []
-        snp_idxs = [range(0,int(len(freqs)/2)), range( int(len(freqs)/2), len(freqs))]
+        # snp_idxs = [range(0,int(len(freqs)/2)), range( int(len(freqs)/2), len(freqs))]
+        snp_idxs = [range(len(freqs))]
         for c in cohort_sizes:
             case_sizes = [c]
             control_size = c
@@ -199,9 +230,8 @@ if __name__=="__main__":
         print("std_res_conts:", std_res_conts)
         pickle.dump((mean_res_conts, std_res_conts), open("simulate_cont.p", "wb"))
 
-
         # homogeneous case Risch
-        ORs = np.array([[1.16] * 10]).T
+        # ORs = np.array([[1.16] * 10]).T
         mean_res_hom_rss = []
         std_res_hom_rss = []
         # snp_idxs = [range(0,int(len(freqs)/2)), range( int(len(freqs)/2), len(freqs))]
@@ -216,7 +246,7 @@ if __name__=="__main__":
 
         
         # hetero case Risch
-        ORs = np.array([[1.16] * 10]).T
+        # ORs = np.array([[1.16] * 10]).T
         mean_res_het_rss = []
         std_res_het_rss = []
         # snp_idxs = [range(0,int(len(freqs)/2)), range( int(len(freqs)/2), len(freqs))]
@@ -230,9 +260,8 @@ if __name__=="__main__":
         pickle.dump((mean_res_het_rss, std_res_het_rss), open("simulate_het_rs.p", "wb"))
 
 
-
         # homogeneous case logit
-        ORs = np.array([[1.16] * 10]).T
+        # ORs = np.array([[1.16] * 10]).T
         mean_res_hom_lts = []
         std_res_hom_lts = []
         # snp_idxs = [range(0,int(len(freqs)/2)), range( int(len(freqs)/2), len(freqs))]
@@ -246,7 +275,7 @@ if __name__=="__main__":
         pickle.dump((mean_res_hom_lts, std_res_hom_lts), open("simulate_hom_lt.p", "wb"))
 
         # hetero case logit
-        ORs = np.array([[1.16] * 10]).T
+        # ORs = np.array([[1.16] * 10]).T
         mean_res_het_lts = []
         std_res_het_lts = []
         #snp_idxs = [range(0,int(len(freqs)/2)), range( int(len(freqs)/2), len(freqs))]
