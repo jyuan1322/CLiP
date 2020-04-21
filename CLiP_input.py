@@ -176,121 +176,6 @@ def plot_results(plot_vals, cht_sizes, plot_exp_scores):
     plt.savefig("cohort_score_comparison.eps", format="eps", dpi=600)
     plt.show()
 
-"""
-from sklearn.linear_model import LogisticRegression
-import matplotlib as mpl
-def heterogeneity_by_prs_percentile(cases, conts, cht_name, betas, thresh, freqs, h_sq):
-    FILE_PATH_MSCLS = os.path.join("misclassification_vs_subtypes", cht_name + ".pickle")
-    num_cases = cases.shape[0]
-    num_conts = conts.shape[0]
-    if os.path.exists(FILE_PATH_MSCLS):
-        # xfracs, scores, xfracs_short, exp_scores_mscls, exp_scores_mscls_sub = pickle.load(open(FILE_PATH_MSCLS,"rb"))
-        # xfracs, scores, xfracs_short, exp_scores_mscls = pickle.load(open(FILE_PATH_MSCLS,"rb"))
-        xfracs, scores = pickle.load(open(FILE_PATH_MSCLS,"rb"))
-    else:
-        print("*"*50)
-        print(cht_name)
-        # sort individuals by PRS
-        case_prs = np.dot(cases, betas)
-
-        prs_order = np.argsort(-1*case_prs) # sort these in reverse, so the highest scoring are included first
-        cases_sorted = cases[prs_order,:]
-        # plt.plot(range(cases_sorted.shape[0]), np.dot(cases_sorted, coefs))
-        xfracs = np.linspace(0.05, 0.95, 20)
-        xfracs_short = np.linspace(0.05, 0.95, 10)
-        scores = []
-        # exp_scores_mscls = []
-        # exp_scores_mscls_sub = []
-        # subset_allele_diffs = []
-
-
-        # 2/26/2020: split controls into two subsets, and test the same procedure
-        nconts_split = int(conts.shape[0]/2)
-        conts_sub1 = conts[:nconts_split,:]
-        conts_sub2 = conts[nconts_split:,:]
-        conts_sub1_prs = np.dot(conts_sub1, betas)
-        prs_order_conts = np.argsort(-1*conts_sub1_prs) # sort these in reverse, so the highest scoring are included first
-        conts_sub1_sorted = conts_sub1[prs_order_conts,:]
-        scores_cont = []
-        for xf in xfracs:
-            ncs = int(xf*nconts_split)
-            conts_sub1_sub = conts_sub1_sorted[:ncs,:]
-            score_cont = heterogeneity(conts_sub1_sub, conts_sub2)
-            scores_cont.append(score_cont)
-
-        for xf in xfracs:
-            ncs = int(xf*num_cases)
-            cases_sub = cases_sorted[:ncs,:]
-            score = heterogeneity(cases_sub, conts)
-            scores.append(score)
-            print("PRS by percentile ncs:", ncs, score)
-
-        # pickle.dump((xfracs, scores, xfracs_short, exp_scores_mscls, exp_scores_mscls_sub, subset_allele_diffs), open(FILE_PATH_MSCLS, "wb"))
-        # pickle.dump((xfracs, scores, xfracs_short, exp_scores_mscls), open(FILE_PATH_MSCLS, "wb"))
-    fig, ax = plt.subplots()
-    scores = np.array(scores)
-    idxs = np.where(~np.isnan(scores))
-    print("non nan:", idxs)
-    scores = scores[idxs]
-    xfracs_case = xfracs[idxs]
-    plt.plot(xfracs_case, scores)
-    # plt.plot(xfracs_short, exp_scores_mscls, linestyle="--")
-    # plt.plot(xfracs_short, exp_scores_mscls_sub, linestyle=":")
-
-    # fit quadratic to points to determine split point
-    z = np.polyfit(xfracs, scores, 2)
-    print(z)
-    print("*"*50)
-    polyz = np.poly1d(z)
-    plt.plot(xfracs, polyz(xfracs))
-
-    # negative control using controls
-    scores_cont = np.array(scores_cont)
-    idxs = np.where(~np.isnan(scores_cont))
-    print("non nan:", idxs)
-    scores_cont = scores_cont[idxs]
-    xfracs_cont = xfracs[idxs]
-    plt.plot(xfracs_cont, scores_cont, linestyle="--")
-
-    plt.xlabel("Fraction of reverse sorted cases")
-    plt.ylabel("Heterogeneity Score")
-    plt.title(cht_name + ", %s cases %s controls" % (num_cases, num_conts))
-    plt.savefig("misclassification_vs_subtypes/" + cht_name + ".png", format="png")
-    plt.close()
-"""
-
-def qq_plot(cases, conts, cht_name, betas):
-    for coht,name in [(cases, "cases"), (conts, "conts")]:
-        coht_prs = np.dot(coht, betas)
-        coht_prs = (coht_prs - np.mean(coht_prs)) / np.std(coht_prs)
-        coht_prs.sort()
-        num_coht = coht.shape[0]
-        pcts = [(i+1)/num_coht for i in range(num_coht-1)]
-        qtl_thry = [norm.ppf(x) for x in pcts]
-        plt.scatter(qtl_thry, coht_prs[:-1])
-        a = [min(qtl_thry),max(qtl_thry)]
-        plt.plot(a,a, c='k')
-        plt.title(cht_name + " " + name)
-        plt.show()
-
-def corr_plot(cases, conts, cht_name, betas):
-    case_corrs = np.corrcoef(cases, rowvar=False)
-    cont_corrs = np.corrcoef(conts, rowvar=False)
-    num_snps = cases.shape[1]
-
-    corr_diffs = []
-    beta_prods = []
-    for i in range(num_snps):
-        for j in range(i+1, num_snps):
-            corr_diff = case_corrs[i,j] - cont_corrs[i,j]
-            corr_diffs.append(corr_diff)
-            beta_prod = betas[i] * betas[j]
-            beta_prods.append(beta_prod)
-    plt.scatter(beta_prods, corr_diffs)
-    plt.xlabel("beta prods")
-    plt.ylabel("corr diff")
-    plt.show()
-
 if __name__=="__main__":
     PICKLE_OUT="cohort_scores.pickle"
 
@@ -362,11 +247,6 @@ if __name__=="__main__":
                 super_frqs = frqs
                 super_hsq = h_sq
 
-
-            # 2/18/2020: test misclassification vs subtypes
-            # heterogeneity_by_prs_percentile(cases_abr, conts_abr, cht_name, betas, thresh, frqs, h_sq)
-            # qq_plot(cases_abr, conts_abr, cht_name, betas)
-            # corr_plot(cases, conts, cht_name, betas)
 
             # calculate p-value
             zscore = (hetsc - expected_score)/score_std
