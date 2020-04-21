@@ -437,7 +437,7 @@ def plot_info_final(file_path, xlabel="heritability"):
 
     ax2.spines['right'].set_visible(False)
     ax2.spines['top'].set_visible(False)
-    ax2.set_xlabel("PRS Percentile Threshold")
+    ax2.set_xlabel("Phenotype Percentile Threshold")
     ax2.set_title("Step Function Thresholds")
     fig.tight_layout()
 
