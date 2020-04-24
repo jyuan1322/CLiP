@@ -13,17 +13,6 @@ from CLiPX import Heterogeneity_GWAS
 from CLiP_input import getSNPs
 from CLiP import generate_snp_props, heterogeneity_expected_corr
 
-"""
-num_snps = 100
-ps = np.array([0.5]*num_snps)
-h_sq = 0.05
-ps, betas = generate_snp_props(num_snps, ps, h_sq)
-print(betas)
-sys.exit(0)
-"""
-
-
-
 
 def sigmoid(x):
     return 1.0/(1.0 + np.exp(-x))
@@ -195,24 +184,12 @@ def generate_cohort_logistic(num_cases, num_conts, freqs, ORs, prev):
     return cases,conts
 
 def run():
-    """
-    x = np.linspace(-5,5,100)
-    y_liab = norm.pdf(x)
-    y_logit = 1/(1+np.exp(-x)) * (1-1/(1+np.exp(-x)))
-    plt.plot(x,y_logit)
-    plt.plot(x,y_liab)
-    plt.show()
-    sys.exit(0)
-    """
 
     num_snps = 100
     freqs = np.array([0.5] * num_snps)
     ORs = np.array([[1.06] * num_snps]).T
     prev = 0.01
 
-
-    # rho,_ = expected_corr_unnorm_logistic(ORs=ORs, freqs=freqs, prev=prev, verbose=False)
-    # print(rho)
     hetsc = heterogeneity_expected_corr_logit(ncases=10000, nconts=10000, ORs=ORs, freqs=freqs, prev=prev, verbose=False)
     print(hetsc)
 
@@ -321,7 +298,7 @@ def run():
                      "all_liab_scores":all_liab_scores,
                      "all_logit_allele_count_diffs":all_logit_allele_count_diffs,
                      "all_liab_allele_count_diffs":all_liab_allele_count_diffs}, open(FILE_PATH, "wb"))
-    """
+
     fig, ax = plt.subplots()
     plt.plot(ORlist, all_pred_scores_logit, linestyle='--', color='k')
     mean_logit_scores = [np.mean(scs) for scs in all_logit_scores]
@@ -375,137 +352,8 @@ def run():
     plt.plot(x,y_liab, color='b')
     plt.savefig("logistic_vs_liability_pdfs.eps", format="eps", dpi=500)
     plt.show()
-    """
-    
-    
-    
-    fig, ax = plt.subplots(1, 3, figsize=(20,20))
-    ax[0].plot(ORlist, all_pred_scores_logit, linestyle='--', color='k')
-    mean_logit_scores = [np.mean(scs) for scs in all_logit_scores]
-    std_logit_scores = [np.std(scs) for scs in all_logit_scores]
-    ax[0].errorbar(ORlist, mean_logit_scores, yerr=std_logit_scores, capsize=5, alpha=0.8, color='cyan')
-    ax[0].plot(ORlist, all_pred_scores_liab, linestyle='--', color='k')
-    mean_liab_scores = [np.mean(scs) for scs in all_liab_scores]
-    std_liab_scores = [np.std(scs) for scs in all_liab_scores]
-    ax[0].errorbar(ORlist, mean_liab_scores, yerr=std_liab_scores, capsize=5, alpha=0.8, color='b')
-
-    liab_xaxis_labels = ["(%.4f)" % (i/num_snps) for i in liab_var_exps]
-    ignore_labels = [1,3,5]
-    for i in ignore_labels:
-        liab_xaxis_labels[i] = ""
-
-    ax[0].set_xticks(ORlist)
-    ax[0].set_xticklabels(["%s\n%s" % (i[0],i[1]) for i in zip(ORlist, liab_xaxis_labels)])
-    ax[0].set_xlabel("SNP Odds Ratio (per-SNP variance explained)")
-    ax[0].set_ylabel("Heterogeneity Score")
-    ax[0].spines['right'].set_visible(False)
-    ax[0].spines['top'].set_visible(False)
-    plt.tight_layout()
-    # plt.savefig("logistic_vs_liability_het_scores.eps", format="eps", dpi=500)
-
-    # fig, ax = plt.subplots()
-    mean_logit_allele_count_diffs = [np.mean(diffs) for diffs in all_logit_allele_count_diffs]
-    std_logit_allele_count_diffs = [np.std(diffs) for diffs in all_logit_allele_count_diffs]
-    mean_liab_allele_count_diffs = [np.mean(diffs) for diffs in all_liab_allele_count_diffs]
-    std_liab_allele_count_diffs = [np.std(diffs) for diffs in all_liab_allele_count_diffs]
-    plt.errorbar(ORlist, mean_logit_allele_count_diffs, yerr=std_logit_allele_count_diffs, capsize=5, color='cyan')
-    plt.errorbar(ORlist, mean_liab_allele_count_diffs, yerr=std_liab_allele_count_diffs, capsize=5, color='b')
-
-    ax[1].set_xticks(ORlist)
-    ax[1].set_xticklabels(["%s\n%s" % (i[0],i[1]) for i in zip(ORlist, liab_xaxis_labels)])
-    ax[1].set_xlabel("SNP Odds Ratio (per-SNP variance explained)")
-    ax[1].set_ylabel("Difference in mean allele count (Cases - Controls)")
-    ax[1].spines['right'].set_visible(False)
-    ax[1].spines['top'].set_visible(False)
-    plt.tight_layout()
-    # plt.savefig("logistic_vs_liability_casecont_allele_diffs.eps", format="eps", dpi=500)
-
-    # fig, ax = plt.subplots()
-    x = np.linspace(-5, 5, 500)
-    y_logit = 1/(1+np.exp(-x)) * (1 - 1/(1+np.exp(-x)))
-    # variance of sigmoid is pi^2/3, so divide by square root of this
-    # x_scaled = x / (np.pi/np.sqrt(3))
-    # y_logit_scaled = 1/(1+np.exp(-x_scaled)) * (1 - 1/(1+np.exp(-x_scaled)))
-    y_liab = norm.pdf(x)
-    ax[2].plot(x,y_logit, color='cyan')
-    # plt.plot(x,y_logit_scaled, color='cyan', linestyle=':')
-    ax[2].plot(x,y_liab, color='b')
-    # plt.savefig("logistic_vs_liability_pdfs.eps", format="eps", dpi=500)
-    plt.show()
-    
-    
-    
-    sys.exit(0)
 
 
-
-
-
-
-
-    betas = convertORs(ORs, prev)
-    print(betas)
-    print(np.log(ORs))
-
-    liability_varexp = np.dot(np.square(betas.flatten()),
-                       2*np.multiply(freqs, 1-freqs))
-    print(liability_varexp)
-
-    liab_scores = []
-    logit_scores = []
-    num_trials = 10
-    for nt in range(num_trials):
-        print("trial:", nt)
-        cases_logit, conts_logit = generate_cohort_logistic(num_cases=100000,
-                                                            num_conts=100000,
-                                                            freqs=freqs,
-                                                            ORs=ORs.flatten(),
-                                                            prev=prev)
-
-        thresh = norm.ppf(1-prev, loc=0, scale=1)
-        cases_liab, conts_liab = generate_cohort(num_cases=100000,
-                                                 num_conts=100000,
-                                                 freqs=freqs,
-                                                 betas=betas.flatten(),
-                                                 h_sq=liability_varexp,
-                                                 thresh=thresh)
-
-        print(np.mean(cases_logit) - np.mean(conts_logit))
-        print(np.mean(cases_liab) - np.mean(conts_liab))
-
-        # test heterogeneity
-        HetScore = Heterogeneity_GWAS()
-        HetScore.het(cases_logit, conts_logit)
-        hetsc = HetScore.get_values(range(num_snps))
-        print("logit:", hetsc)
-        print(np.mean(np.corrcoef(cases_logit, rowvar=False)[np.triu_indices(num_snps, k=1)]))
-        # print(HetScore.get_weights())
-        logit_scores.append(hetsc)
-
-        HetScore = Heterogeneity_GWAS()
-        HetScore.het(cases_liab, conts_liab)
-        hetsc = HetScore.get_values(range(num_snps))
-        print("liab:", hetsc)
-        print(np.mean(np.corrcoef(cases_liab, rowvar=False)[np.triu_indices(num_snps, k=1)]))
-        # print(HetScore.get_weights())
-        liab_scores.append(hetsc)
-
-    print("Logit")
-    print(np.mean(logit_scores), np.std(logit_scores))
-    print(logit_scores)
-    print("-"*20)
-    print("Liab")
-    print(np.mean(liab_scores), np.std(liab_scores))
-    print(liab_scores)
-
-
-    """
-    for i in range(10):
-        case = cases_logit[i,:]
-        py_liab = norm.cdf((np.dot(case, betas.flatten()) - 2*np.dot(betas.flatten(), freqs) -thresh)/np.sqrt(1-liability_varexp))
-        py_logit = 1/(1+np.exp(-(np.dot(case, np.log(ORs).flatten()) - 2*np.dot(np.log(ORs).flatten(), freqs) -np.log(1/prev - 1))))
-        print(py_liab, py_logit)
-    """
 
 if __name__=="__main__":
     run()
