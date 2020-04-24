@@ -34,8 +34,7 @@ def run_liability():
     FILE_PATH = "subtype_frac_liab.p"
     if os.path.exists(FILE_PATH):
         h_sq_frac_range, results, hetsc_exp = pickle.load(open(FILE_PATH, "rb"))
-        # plot_results(h_sq_frac_range, results, hetsc_exp, outname="02292020_subtype_scale.png")
-        plot_results(h_sq_frac_range, results, hetsc_exp, outname="02292020_subtype_scale.eps")
+        plot_results(h_sq_frac_range, results, hetsc_exp, outname="subtype_scale_liability.eps")
     else:
         num_cases = 30000
         num_conts = 30000
@@ -104,8 +103,7 @@ def run_logistic():
     FILE_PATH = "subtype_frac_logit.p"
     if os.path.exists(FILE_PATH):
         h_sq_frac_range, results, hetsc_exp = pickle.load(open(FILE_PATH, "rb"))
-        # plot_results(h_sq_frac_range, results, hetsc_exp, outname="02292020_subtype_scale_logit.png")
-        plot_results(h_sq_frac_range, results, hetsc_exp, outname="02292020_subtype_scale_logit.eps")
+        plot_results(h_sq_frac_range, results, hetsc_exp, outname="subtype_scale_logit.eps")
     else:
         num_cases = 30000
         num_conts = 30000
