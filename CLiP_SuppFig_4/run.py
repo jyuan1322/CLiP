@@ -12,9 +12,6 @@ from CLiP import probit_corr, \
                  heterogeneity, \
                  heterogeneity_expected_corr, \
                  generate_snp_props
-                 # generate_cohort, \
-                 # generate_homhet_cohort, \
-                 # generate_controls
 
 def generate_stratified_controls(num_conts, num_snps, ps_stratif):
     num_sub_pops = len(ps_stratif)
@@ -122,14 +119,8 @@ def plot_results(fsts):
     ax_power.spines['right'].set_visible(False)
     ax_power.spines['top'].set_visible(False)
     for i,fst in enumerate(fsts):
-        FILE_PATH = "02292020_population_stratif_out_%s.p" % (fst)
+        FILE_PATH = "population_stratif_out_%s.p" % (fst)
         pckl = pickle.load(open(FILE_PATH, "rb"))
-        # hetsc_means_hom = pckl["hetsc_means_hom"]
-        # hetsc_stds_hom = pckl["hetsc_stds_hom"]
-        # hetsc_means_het = pckl["hetsc_means_het"]
-        # hetsc_stds_het = pckl["hetsc_stds_het"]
-        # hetsc_means_cont = pckl["hetsc_means_cont"]
-        # hetsc_stds_cont = pckl["hetsc_stds_cont"]
         hetsc_means_hom = [np.mean(x) for x in pckl["hetscs_homs"]]
         hetsc_stds_hom = [np.std(x) for x in pckl["hetscs_homs"]]
         hetsc_means_het = [np.mean(x) for x in pckl["hetscs_hets"]]
@@ -146,18 +137,6 @@ def plot_results(fsts):
         ax.set_xlabel("Variance explained by modeled SNPs")
         ax.set_ylabel("Heterogeneity Score")
 
-        """
-        # label CLiP score
-        xloc = 0.8 * (h_sqs[-1] - h_sqs[0])
-        yloc1 = np.interp(xloc, h_sqs, hetsc_exps)
-        yloc2 = np.interp(xloc, h_sqs, hetsc_means_het)
-        ax.annotate(s='',xy=(xloc, yloc1), xycoords='data',
-				    xytext=(xloc, yloc2),textcoords='data',
-				    arrowprops=dict(arrowstyle="<->", color='gray'))
-        ax.annotate(s='CLiP Score',xy=(xloc * 1.02, yloc1 + (yloc2-yloc1)*0.75), 
-                    xycoords='data',fontsize=10.0,textcoords='data',
-                    ha='left', color='gray')
-        """
         # power calculation
         power_calc = []
         spcfcty_calc = []
@@ -191,8 +170,8 @@ def plot_results(fsts):
         ax_power.set_xlabel("Variance explained by modeled SNPs")
         ax_power.set_ylabel("Sensitivity/Specificity")
         
-    fig.savefig("02292020_population_stratif_plot.eps", format="eps", dpi=500)
-    fig_power.savefig("02292020_population_stratif_power.eps", format="eps", dpi=500)
+    fig.savefig("population_stratif_plot.eps", format="eps", dpi=500)
+    fig_power.savefig("population_stratif_power.eps", format="eps", dpi=500)
 
     # make external legend
     fig_leg, ax_leg = plt.subplots(1,1,figsize=(4,7))
@@ -205,44 +184,29 @@ def plot_results(fsts):
     cbar.ax.set_yticklabels([str(x) for x in fsts])
     for tick in cbar.ax.get_yticklabels():
         tick.set_fontsize(25)
-    plt.savefig("02292020_population_stratif_legend.eps", format="eps", dpi=100)
+    plt.savefig("population_stratif_legend.eps", format="eps", dpi=100)
 
     plt.show()
 
 
 def run_heritability():
-    # FILE_PATH = "02292020_population_stratif_out.p"
+    # FILE_PATH = "population_stratif_out.p"
     # pop_allele_diffs = [0.0, 0.05, 0.1, 0.15, 0.2]
     fsts = np.array([0.001, 0.005, 0.01, 0.05, 0.1])
     pop_allele_diffs = 0.5*np.sqrt(fsts)
 
     # for allele_diff in pop_allele_diffs:
-    #     FILE_PATH = "02292020_population_stratif_out_%s.p" % (allele_diff)
+    #     FILE_PATH = "population_stratif_out_%s.p" % (allele_diff)
     for fst, allele_diff in zip(fsts, pop_allele_diffs):
-        FILE_PATH = "02292020_population_stratif_out_%s.p" % (fst)
+        FILE_PATH = "population_stratif_out_%s.p" % (fst)
         if not os.path.exists(FILE_PATH):
             num_snps = 100
             fixed_ps_val = 0.5
             fixed_ps = np.array([fixed_ps_val]*num_snps)
             # generate stratified populations
-            """
-            ps_stratif = []
-            num_sub_pops=4
-            for i in range(num_sub_pops):
-                ps_sub = np.random.uniform(size=num_snps)
-                # ps_sub = [0.2]*num_snps
-                ps_stratif.append(ps_sub)
-            """
-
             ps_stratif = [[fixed_ps_val - allele_diff]*int(num_snps/2) + [fixed_ps_val + allele_diff]*int(num_snps/2),
                           [fixed_ps_val + allele_diff]*int(num_snps/2) + [fixed_ps_val - allele_diff]*int(num_snps/2)]
 
-            # hetsc_means_hom = []
-            # hetsc_stds_hom = []
-            # hetsc_means_het = []
-            # hetsc_stds_het = []
-            # hetsc_means_cont = []
-            # hetsc_stds_cont = []
             hetscs_homs = []
             hetscs_hets = []
             hetscs_conts = []
@@ -255,9 +219,6 @@ def run_heritability():
             for h_sq in h_sqs:
                 num_cases = 30000
                 num_conts = 30000
-                # num_cases = 5000
-                # num_conts = 5000
-
 
                 hetscs_hom = []
                 hetscs_het = []
@@ -296,12 +257,6 @@ def run_heritability():
                     score = heterogeneity(cases,conts)
                     hetscs_cont.append(score)
 
-                # hetsc_means_hom.append(np.mean(hetscs_hom))
-                # hetsc_stds_hom.append(np.std(hetscs_hom))
-                # hetsc_means_het.append(np.mean(hetscs_het))
-                # hetsc_stds_het.append(np.std(hetscs_het))
-                # hetsc_means_cont.append(np.mean(hetscs_cont))
-                # hetsc_stds_cont.append(np.std(hetscs_cont))
                 hetscs_homs.append(hetscs_hom)
                 hetscs_hets.append(hetscs_het)
                 hetscs_conts.append(hetscs_cont)
@@ -312,14 +267,6 @@ def run_heritability():
                          "hetsc_exps":hetsc_exps,
                          "mean_allele_diffs":mean_allele_diffs,
                          "h_sqs":h_sqs}, open(FILE_PATH, "wb"))
-            """
-            "hetsc_means_hom":hetsc_means_hom,
-            "hetsc_stds_hom":hetsc_stds_hom,
-            "hetsc_means_het":hetsc_means_het,
-            "hetsc_stds_het":hetsc_stds_het,
-            "hetsc_means_cont":hetsc_means_cont,
-            "hetsc_stds_cont":hetsc_stds_cont,
-            """
     plot_results(fsts)
 if __name__=="__main__":
     run_heritability()
