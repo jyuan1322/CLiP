@@ -386,7 +386,9 @@ def test_prevalence():
 
         # sample logistic
         for nt in range(num_trials):
+            # the same cohort used for both mdoels
             case_samples = np.random.binomial(n=2, p=freqs, size=(subset_size,num_snps))
+
             exp_score = 2*np.dot(beta_logits, freqs)
             scores = np.dot(case_samples, beta_logits) + \
                      const - \
@@ -398,7 +400,7 @@ def test_prevalence():
 
             # sample liability
 
-            case_samples = np.random.binomial(n=2, p=freqs, size=(subset_size,num_snps))
+            # case_samples = np.random.binomial(n=2, p=freqs, size=(subset_size,num_snps))
             exp_score = 2*np.dot(betas, freqs)
             scores = np.dot(case_samples, betas) + \
                      np.random.normal(0,np.sqrt(1-h_sq),subset_size) - \
@@ -419,12 +421,13 @@ def test_prevalence():
     ax.set_xlim(lims)
     ax.set_ylim(lims)
     plt.xlabel("Logistic prevalences")
+    plt.xticks(rotation=45)
     plt.ylabel("Liability prevalences")
-    plt.ticklabel_format(style='sci', scilimits=(0,0))
+    # plt.ticklabel_format(style='sci', scilimits=(0,0))
 
     cbar = fig.colorbar(colors_rg,ticks=ORlist,cax=plt.axes([0.85, 0.11, 0.05, 0.77]))
     cbar.ax.set_yticklabels([str(x) for x in ORlist])
-    plt.savefig("logistic_vs_liability_prevalences.eps", format="eps", dpi=500)
+    plt.savefig("logistic_vs_liability_prevalences.eps", bbox_inches='tight', format="eps", dpi=500)
     plt.show()
 
 if __name__=="__main__":
