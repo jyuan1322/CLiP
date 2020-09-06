@@ -6,6 +6,9 @@ from scipy.stats import norm
 sys.path.append('../')
 from CLiPX_utils import get_fixed_expression_params, generate_cohort
 
+# set font
+font = {'size':18}
+mpl.rc('font', **font)
 
 def artanh_correlation_sd(case_size_sets, heritability):
     num_snps = 100
@@ -90,6 +93,6 @@ if __name__=="__main__":
 
     plt.xlabel("Cases sample size")
     plt.ylabel(r'$artanh(\sigma(r))$')
-    plt.savefig("sample_corr_test_std_errs.eps", format="eps", dpi=1000)
+    plt.savefig("sample_corr_test_std_errs.eps", format="eps", dpi=500)
     plt.show()
 

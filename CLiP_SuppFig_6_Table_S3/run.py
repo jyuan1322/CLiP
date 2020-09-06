@@ -8,6 +8,10 @@ sys.path.append('../')
 from CLiP import heterogeneity, generate_homhet_cohort
 
 
+# set font
+font = {'size':12}
+mpl.rc('font', **font)
+
 def plot_results(resultsall):
     ncases_list = [5000, 10000, 25000, 50000, 100000, 250000, 500000]
     split_fracs = [0, 0.25, 0.5, 0.75, 1]
@@ -41,7 +45,7 @@ def plot_results(resultsall):
     # plt.legend(frameon=False)
     plt.xlabel("Fraction of true cases")
     plt.ylabel("Heterogeneity Score")
-    plt.savefig("table2_casecontrol_het.png", format="png", dpi=1000)
+    plt.savefig("table2_casecontrol_het.eps", format="eps", dpi=500)
     plt.show()
 
 if __name__=="__main__":

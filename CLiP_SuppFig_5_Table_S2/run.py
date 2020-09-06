@@ -10,6 +10,10 @@ from CLiP import generate_cohort, \
                  generate_snps_splits, \
                  heterogeneity
 
+# set font
+font = {'size':12}
+mpl.rc('font', **font)
+
 def test_n_splits(num_sub_phenos, frac_shared_effects, num_snps=100, num_cases=5000, num_conts=5000):
     num_snps_shared = num_snps * frac_shared_effects
     # ensure equal number of non-shared SNPs across sub-phenotypes
@@ -82,7 +86,8 @@ def plot_grid(results):
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), frameon=False)
     plt.xlabel("Fraction of SNP effects unique to sub-phenotype")
     plt.ylabel("Heterogeneity Score")
-    plt.savefig("table1_disjoint_subphenos.png", format="png", dpi=1000)
+    plt.tight_layout()
+    plt.savefig("table1_disjoint_subphenos.eps", format="eps", dpi=500)
     plt.show()
 
 if __name__=="__main__":

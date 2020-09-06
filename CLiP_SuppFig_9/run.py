@@ -93,8 +93,8 @@ def generate_plot(numbins, subset, fname):
         ax.set_xticklabels(intervalsx)
         ax.set_yticklabels(intervalsy)
 
-    ax.set_xlabel("Increasing PRS Indicator Function")
-    ax.set_ylabel("Decreasing PRS Indicator Function")
+    ax.set_xlabel("Increasing PRS Indicator Function", fontsize=15)
+    ax.set_ylabel("Decreasing PRS Indicator Function", fontsize=15)
     
     if subset is None:
         plt.savefig("step_heatmap.eps", format="eps", dpi=300)

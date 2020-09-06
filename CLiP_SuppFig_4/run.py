@@ -13,6 +13,10 @@ from CLiP import probit_corr, \
                  heterogeneity_expected_corr, \
                  generate_snp_props
 
+# set font
+font = {'size':16}
+mpl.rc('font', **font)
+
 def generate_stratified_controls(num_conts, num_snps, ps_stratif):
     num_sub_pops = len(ps_stratif)
     conts = np.empty(shape=(0, num_snps))
