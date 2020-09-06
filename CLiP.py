@@ -236,3 +236,62 @@ def generate_cohort_splits(num_sub_phenos, sub_betas_list, ps, num_cases=5000, n
         conts = np.concatenate((conts, sub_conts), axis=0)
     return cases, conts
 
+# for use in figures 2 and 4
+def generate_cohort_logistic(num_cases, num_conts, freqs, ORs, prev):
+    const = -np.log(1/prev - 1)
+    beta_logits = np.log(ORs)
+    num_snps = len(freqs)
+    cases = np.empty((num_cases,num_snps))
+
+    # generate controls
+    conts = np.random.binomial(n=2, p=freqs, size=(num_conts, num_snps))
+
+    # generate cases
+    cur_cases = 0
+    subset_size = 10000
+    exp_score = 2*np.dot(beta_logits, freqs)
+    while cur_cases < num_cases:
+        case_samples = np.random.binomial(n=2, p=freqs, size=(subset_size,num_snps))
+        scores = np.dot(case_samples, beta_logits) + \
+                 const - \
+                 exp_score # set mean score to 0
+        scores = 1.0/(1.0+np.exp(-scores))
+        case_labels = np.random.binomial(n=1, p=scores, size=subset_size)
+        idxs = np.where(case_labels==1)[0]
+
+        if cur_cases+len(idxs) > num_cases:
+            idxs = idxs[:(num_cases-cur_cases)]
+        cases[cur_cases:cur_cases + len(idxs),:] = case_samples[idxs,:]
+        cur_cases += len(idxs)
+        # print("logit: " + str(cur_cases))
+    if cases.shape[0] > num_cases:
+        cases = cases[:num_cases, :]
+    return cases,conts
+
+def heterogeneity_expected_corr_logit(ncases, nconts, ORs, freqs, prev, verbose=False):
+    num_snps = len(ORs)
+    N = ncases
+    Np = nconts
+
+    R, ex = expected_corr_unnorm_logistic(ORs, freqs, prev, verbose=False)
+    Rp = np.eye(num_snps)
+    Y = np.sqrt(N*Np/(N+Np)) * (R-Rp)
+
+    z = np.zeros(num_snps)
+    for i in range(num_snps):
+        p_case = ex[i]/2
+        p_control = freqs[i]
+        gamma = p_case/(1-p_case) / (p_control/(1-p_control))
+        z[i] = np.sqrt(p_control*(1-p_control)) * (gamma-1) / (p_control*(gamma-1) + 1)
+
+
+    numer = 0.0
+    denom = 0.0
+    for i in range(num_snps):
+        for j in range(i+1,num_snps):
+            wij = z[i] * z[j]
+            yij = Y[i,j]
+            numer += wij * yij
+            denom += wij * wij
+    score = numer / np.sqrt(denom)
+    return score

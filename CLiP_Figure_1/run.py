@@ -11,7 +11,10 @@ from pprint import pprint
 sys.path.append('../')
 from CLiPX import Heterogeneity_GWAS
 from CLiP_input import getSNPs
-from CLiP import generate_snp_props, heterogeneity_expected_corr
+from CLiP import generate_snp_props, \
+                 heterogeneity_expected_corr, \
+                 generate_cohort_logistic, \
+                 heterogeneity_expected_corr_logit
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib as mpl
 
@@ -78,6 +81,7 @@ def expected_corr_unnorm_logistic(ORs, freqs, prev, verbose=False):
             rho[j,i] = rho[i,j]
     return rho, ex
 
+"""
 def heterogeneity_expected_corr_logit(ncases, nconts, ORs, freqs, prev, verbose=False):
     num_snps = len(ORs)
     N = ncases
@@ -105,7 +109,7 @@ def heterogeneity_expected_corr_logit(ncases, nconts, ORs, freqs, prev, verbose=
             denom += wij * wij
     score = numer / np.sqrt(denom)
     return score
-
+"""
 
 
 
@@ -153,6 +157,7 @@ def generate_cohort(num_cases,num_conts,freqs,betas,h_sq,thresh):
         cases = cases[:num_cases, :]
     return cases,conts
 
+"""
 def generate_cohort_logistic(num_cases, num_conts, freqs, ORs, prev):
     const = -np.log(1/prev - 1)
     beta_logits = np.log(ORs)
@@ -183,6 +188,7 @@ def generate_cohort_logistic(num_cases, num_conts, freqs, ORs, prev):
     if cases.shape[0] > num_cases:
         cases = cases[:num_cases, :]
     return cases,conts
+"""
 
 def run():
     """
@@ -317,8 +323,10 @@ def run():
 
     ax.set_xticks(ORlist)
     ax.set_xticklabels(["%s\n%s" % (i[0],i[1]) for i in zip(ORlist, liab_xaxis_labels)])
-    ax.set_xlabel("SNP Odds Ratio (per-SNP variance explained)")
-    ax.set_ylabel("Heterogeneity Score")
+    ax.set_xlabel("SNP Odds Ratio (per-SNP variance explained)", fontsize=16)
+    ax.set_ylabel("Heterogeneity Score", fontsize=16)
+    plt.xticks(fontsize=11)
+    plt.yticks(fontsize=11)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     plt.tight_layout()
@@ -334,8 +342,10 @@ def run():
 
     ax.set_xticks(ORlist)
     ax.set_xticklabels(["%s\n%s" % (i[0],i[1]) for i in zip(ORlist, liab_xaxis_labels)])
-    ax.set_xlabel("SNP Odds Ratio (per-SNP variance explained)")
-    ax.set_ylabel("Difference in mean allele count (Cases - Controls)")
+    ax.set_xlabel("SNP Odds Ratio (per-SNP variance explained)", fontsize=16)
+    ax.set_ylabel(r'$\Delta$ mean allele count (Cases - Conts)', fontsize=16)
+    plt.xticks(fontsize=11)
+    plt.yticks(fontsize=11)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     plt.tight_layout()
@@ -351,6 +361,8 @@ def run():
     plt.plot(x,y_logit, color='cyan')
     # plt.plot(x,y_logit_scaled, color='cyan', linestyle=':')
     plt.plot(x,y_liab, color='b')
+    plt.xticks(fontsize=11)
+    plt.yticks(fontsize=11)
     plt.savefig("logistic_vs_liability_pdfs.eps", format="eps", dpi=500)
     plt.show()
 

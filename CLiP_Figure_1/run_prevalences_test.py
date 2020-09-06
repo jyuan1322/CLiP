@@ -8,6 +8,8 @@ from matplotlib.colors import LinearSegmentedColormap
 import matplotlib as mpl
 from run import convertORs
 
+np.random.seed(0)
+
 def test_prevalence():
     num_snps = 10
     freqs = np.array([0.5] * num_snps)
