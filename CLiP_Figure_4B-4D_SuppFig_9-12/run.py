@@ -161,6 +161,9 @@ def plot_info_final(file_path, xlabel="heritability"):
     disable_binary_threshes = True
     disable_cont_weights = False
 
+    mpl.rcParams['xtick.labelsize'] = 12
+    mpl.rcParams['ytick.labelsize'] = 12
+
     with open(file_path, "rb") as f:
         points = pickle.load(f)
         hom_thresh_runs = points["hom_thresh_runs"]
@@ -251,15 +254,15 @@ def plot_info_final(file_path, xlabel="heritability"):
         ax.set_position([box.x0, box.y0, box.width*0.75, box.height])
         ax.legend(loc='center left', bbox_to_anchor=(1,0.5))
 
-    ax.set_ylabel("CLiP-Y score")
+    ax.set_ylabel("CLiP-Y score", fontsize=14)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
 
     if xlabel == "SNP Variance Explained":
-        ax.set_xlabel("Variance explained by modeled SNPs")
+        ax.set_xlabel("Variance explained by modeled SNPs", fontsize=14)
         plt.savefig("homogeneous_score_heritabilities.eps", format="eps", dpi=1000)
     elif xlabel == "number of individuals":
-        ax.set_xlabel("Number of simulated individuals")
+        ax.set_xlabel("Number of simulated cases and controls", fontsize=14)
         plt.savefig("homogeneous_score_numinds.eps", format="eps", dpi=1000)
 
     # -----
@@ -287,15 +290,15 @@ def plot_info_final(file_path, xlabel="heritability"):
                 score_stds.append(np.std(het_continuous_runs[ws][num_inds]))
             plt.errorbar(num_inds_vals, score_means, yerr=score_stds, c=ws_colors[ws], linestyle=ws_styles[ws], label=ws, capsize=5)
 
-    ax.set_ylabel("CLiP-Y score")
+    ax.set_ylabel("CLiP-Y score", fontsize=14)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
 
     if xlabel == "SNP Variance Explained":
-        ax.set_xlabel("Variance explained by modeled SNPs")
+        ax.set_xlabel("Variance explained by modeled SNPs", fontsize=14)
         plt.savefig("heterogeneous_score_heritabilities.eps", format="eps", dpi=1000)
     elif xlabel == "number of individuals":
-        ax.set_xlabel("Number of simulated individuals")
+        ax.set_xlabel("Number of simulated cases and controls", fontsize=14)
         plt.savefig("heterogeneous_score_numinds.eps", format="eps", dpi=1000)
 
     # -----
@@ -326,15 +329,15 @@ def plot_info_final(file_path, xlabel="heritability"):
                 score_stds.append(np.sqrt(np.var(het_continuous_runs[ws][num_inds])))
             plt.errorbar(num_inds_vals, score_means, yerr=score_stds, c=ws_colors[ws], linestyle=ws_styles[ws], label=ws, capsize=5)
 
-    ax.set_ylabel("CLiP-Y score")
+    ax.set_ylabel("CLiP-Y score", fontsize=14)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
 
     if xlabel == "SNP Variance Explained":
-        ax.set_xlabel("Variance explained by modeled SNPs")
+        ax.set_xlabel("Variance explained by modeled SNPs", fontsize=14)
         plt.savefig("bias_adj_score_heritabilities.eps", format="eps", dpi=1000)
     elif xlabel == "number of individuals":
-        ax.set_xlabel("Number of simulated individuals")
+        ax.set_xlabel("Number of simulated cases and controls", fontsize=14)
         plt.savefig("bias_adj_score_numinds.eps", format="eps", dpi=1000)
 
 
@@ -370,7 +373,7 @@ def plot_info_final(file_path, xlabel="heritability"):
 
         ax2.errorbar(idx, score_mean, yerr=score_stds, label=ws, color=wscol, marker='o')
         idx += 1
-    ax1.set_ylabel("CLiP-Y score")
+    ax1.set_ylabel("CLiP-Y score", fontsize=14)
     ax1.spines['right'].set_visible(False)
     ax1.spines['top'].set_visible(False)
     ax1.set_xlabel("Threshold location (std devs)")
@@ -417,10 +420,12 @@ def plot_info_final(file_path, xlabel="heritability"):
                 score_stds.append(np.sqrt(np.var(het_continuous_runs[ws][num_inds])))
             ax1.errorbar(num_inds_vals, score_means, yerr=score_stds, c=ws_colors[ws], linestyle=ws_styles[ws], label=ws, capsize=5)
 
-    ax1.set_ylabel("CLiP-Y score")
+    ax1.set_ylabel("CLiP-Y score", fontsize=14)
     ax1.spines['right'].set_visible(False)
     ax1.spines['top'].set_visible(False)
-    ax1.set_title("Weight Functions")
+    ax1.set_title("Weight Functions", fontsize=14)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
 
     print("Threshold only runs")
     # plot scores as a function of threshold
@@ -437,15 +442,15 @@ def plot_info_final(file_path, xlabel="heritability"):
 
     ax2.spines['right'].set_visible(False)
     ax2.spines['top'].set_visible(False)
-    ax2.set_xlabel("Phenotype Percentile Threshold")
-    ax2.set_title("Step Function Thresholds")
+    ax2.set_xlabel("Phenotype Percentile Threshold", fontsize=14)
+    ax2.set_title("Step Function Thresholds", fontsize=14)
     fig.tight_layout()
 
     if xlabel == "SNP Variance Explained":
-        ax1.set_xlabel("Variance explained by modeled SNPs")
+        ax1.set_xlabel("Variance explained by modeled SNPs", fontsize=14)
         plt.savefig("condensed_performance_wthreshes_heritabilities.eps", format="eps", dpi=1000)
     elif xlabel == "number of individuals":
-        ax1.set_xlabel("Number of simulated individuals")
+        ax1.set_xlabel("Number of simulated cases and controls", fontsize=14)
         plt.savefig("condensed_performance_wthreshes_numinds.eps", format="eps", dpi=1000)
 
     plt.show()

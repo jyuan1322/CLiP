@@ -12,6 +12,9 @@ from CLiPX_correlation import expected_corr_unnorm, get_control_cov
 from CLiPX import Heterogeneity_TWAS
 
 
+# set font
+font = {'size':14}
+mpl.rc('font', **font)
 
 def plot_heterogeneity(herit, g2wherit=None, log_scale=False):
     corrs = {}
@@ -45,9 +48,10 @@ def plot_heterogeneity(herit, g2wherit=None, log_scale=False):
         ax.set_xticks([ncase for ncase in vals])
         ax.get_xaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
         plt.xticks(rotation=315)
-        plt.xlabel("log( cohort sample size )")
+        plt.xlabel("log( sample size )")
     else:
         plt.xlabel("cohort sample size")
+    plt.xticks(fontsize=12)
 
     plt.ylabel("CLiP-X score")
     if g2wherit is None:
