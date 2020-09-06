@@ -83,8 +83,8 @@ def run_heritability():
         plt.errorbar(h_sqs, hetsc_means_het, yerr=hetsc_stds_het, color='green', capsize=5)
         plt.errorbar(h_sqs, hetsc_means_cont, yerr=hetsc_stds_cont, color='black', capsize=5)
         plt.plot(h_sqs, hetsc_exps, color='blue')
-        plt.xlabel("Variance explained by modeled SNPs")
-        plt.ylabel("Heterogeneity Score")
+        plt.xlabel("Variance explained by modeled SNPs", fontsize=14)
+        plt.ylabel("Heterogeneity Score", fontsize=14)
 
         # label CLiP score
         xloc = 0.8 * (h_sqs[-1] - h_sqs[0])
@@ -94,8 +94,11 @@ def run_heritability():
 				    xytext=(xloc, yloc2),textcoords='data',
 				    arrowprops=dict(arrowstyle="<->", color='gray'))
         ax.annotate(s='CLiP Score',xy=(xloc * 1.02, yloc1 + (yloc2-yloc1)*0.75), 
-                    xycoords='data',fontsize=10.0,textcoords='data',
+                    xycoords='data',fontsize=14.0,textcoords='data',
                     ha='left', color='gray')
+
+        plt.xticks(fontsize=11)
+        plt.yticks(fontsize=11)
 
         plt.savefig("simulate_basic_heritability.eps", format="eps", dpi=1000)
         plt.show()
@@ -208,8 +211,8 @@ def run_sample_size():
             print("sample size: %s, score: %s, std dev: %s" % (sample_size[i], hetsc_means_hom[i], hetsc_stds_hom[i]))
 
         plt.plot(sample_size, hetsc_exps, color='blue')
-        plt.xlabel("Number of simulated individuals")
-        plt.ylabel("Heterogeneity Score")
+        plt.xlabel("Number of simulated cases and controls", fontsize=14)
+        plt.ylabel("Heterogeneity Score", fontsize=14)
 
         # label CLiP score
         xloc = 0.8 * (sample_size[-1] - sample_size[0])
@@ -219,8 +222,11 @@ def run_sample_size():
 				    xytext=(xloc, yloc2),textcoords='data',
 				    arrowprops=dict(arrowstyle="<->", color='gray'))
         ax.annotate(s='CLiP Score',xy=(xloc * 1.02, yloc1 + (yloc2-yloc1)*0.75), 
-                    xycoords='data',fontsize=10.0,textcoords='data',
+                    xycoords='data',fontsize=14.0,textcoords='data',
                     ha='left', color='gray')
+
+        plt.xticks(fontsize=11)
+        plt.yticks(fontsize=11)
 
         plt.savefig("simulate_basic_num_inds.eps", format="eps", dpi=1000)
         plt.show()

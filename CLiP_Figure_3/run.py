@@ -4,16 +4,18 @@ import numpy as np
 import os.path
 import pickle, sys, argparse
 from scipy.stats import norm
-# sys.path.append('../')
+sys.path.append('../')
 from CLiP import generate_snp_props, \
                  generate_cohort, \
                  heterogeneity, \
                  heterogeneity_expected_corr, \
-                 generate_snps_splits
-from logistic_vs_liability_test import generate_cohort_logistic, \
-                                       heterogeneity_expected_corr_logit
+                 generate_snps_splits, \
+                 generate_cohort_logistic, \
+                 heterogeneity_expected_corr_logit
+# from logistic_vs_liability_test import generate_cohort_logistic, \
+#                                        heterogeneity_expected_corr_logit
 
-def plot_results(h_sq_frac_range, results, hetsc_exp, outname):
+def plot_results(h_sq_frac_range, results, hetsc_exp, outname, xaxis_label=None):
     fig,ax = plt.subplots(1,1)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -24,8 +26,13 @@ def plot_results(h_sq_frac_range, results, hetsc_exp, outname):
     plt.errorbar(h_sq_frac_range, means, yerr=stds, label="heterog", capsize=5,c='g')
 
     # plt.legend()
-    plt.xlabel(r'Fraction of subtype magnitude $\beta_2/\beta_1$')
-    plt.ylabel("Heterogeneity Score")
+    if xaxis_label is not None:
+        plt.xlabel(xaxis_label, fontsize=14)
+    else:
+        plt.xlabel(r'Fraction of subtype magnitude $\beta_2/\beta_1$', fontsize=14)
+    plt.ylabel("Heterogeneity Score", fontsize=14)
+    plt.xticks(fontsize=11)
+    plt.yticks(fontsize=11)
     # plt.savefig(outname, format="png", dpi=500)
     plt.savefig(outname, format="eps", dpi=500)
     plt.show()
@@ -34,7 +41,8 @@ def run_liability():
     FILE_PATH = "subtype_frac_liab.p"
     if os.path.exists(FILE_PATH):
         h_sq_frac_range, results, hetsc_exp = pickle.load(open(FILE_PATH, "rb"))
-        plot_results(h_sq_frac_range, results, hetsc_exp, outname="subtype_scale_liability.eps")
+        plot_results(h_sq_frac_range, results, hetsc_exp, outname="subtype_scale_liability.eps",
+                     xaxis_label='Fraction of subtype variance explained')
     else:
         num_cases = 30000
         num_conts = 30000
@@ -103,7 +111,8 @@ def run_logistic():
     FILE_PATH = "subtype_frac_logit.p"
     if os.path.exists(FILE_PATH):
         h_sq_frac_range, results, hetsc_exp = pickle.load(open(FILE_PATH, "rb"))
-        plot_results(h_sq_frac_range, results, hetsc_exp, outname="subtype_scale_logit.eps")
+        plot_results(h_sq_frac_range, results, hetsc_exp, outname="subtype_scale_logit.eps",
+                     xaxis_label='Fraction of subtype odds ratio magnitude')
     else:
         num_cases = 30000
         num_conts = 30000
